@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tech Hour Tracking</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,680&family=Outfit:wght@380;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #141618;
+      --ink: #e8e8ea;
+      --muted: #9aa0a6;
+      --line: #2e3338;
+      --card: #1c2024;
+      --teal: #2ad4c8;
+      --teal-deep: #14b8a6;
+      --teal-soft: #143432;
+      --copper: #e07a62;
+      --copper-soft: #3a2420;
+      --gold: #d7c08a;
+      --gold-soft: #2c2820;
+      --ok: #3ddc97;
+      --shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      font-family: Outfit, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 420px at 0% -10%, rgba(42, 212, 200, 0.12) 0%, transparent 55%),
+        var(--paper);
+    }
+    button, input, select { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    .wrap { max-width: 1680px; margin: 0 auto; padding: 28px 22px 48px; }
+    header.top { position: relative; display: block; margin-bottom: 22px; min-height: 92px; }
+    .brand { display: flex; justify-content: center; }
+    .logo-frame { width: min(560px, 72%); background: #1a1c1e; border: 1px solid #2e3338; border-radius: 14px; overflow: hidden; }
+    .logo { width: 100%; height: auto; display: block; }
+    .account { position: absolute; top: 0; right: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+    .sub { color: var(--muted); margin-top: 6px; font-size: 14px; }
+    .ghost, .solid, .warn {
+      border-radius: 999px; padding: 10px 16px; border: 1px solid var(--line); background: transparent;
+    }
+    .solid { background: var(--teal); color: #10211f; border-color: var(--teal); font-weight: 600; }
+    .warn { background: var(--copper); color: white; border-color: var(--copper); }
+    .ghost:hover, .solid:hover, .warn:hover { transform: translateY(-1px); }
+    input, select, textarea {
+      width: 100%; height: 42px; border: 1px solid #d7d7d7; border-radius: 8px; padding: 10px 12px;
+      background: #ffffff !important;
+      color: #111111 !important;
+      -webkit-text-fill-color: #111111;
+      color-scheme: light;
+    }
+    .date-wrap { display: flex; gap: 6px; }
+    .date-wrap input { flex: 1; }
+    .cal-btn { width: 42px; height: 42px; border-radius: 8px; border: 1px solid #d7d7d7; background: #ffffff; color: #111111; }
+    .picker { position: absolute; z-index: 5; background: #ffffff; color: #111111; border: 1px solid #d7d7d7; border-radius: 10px; padding: 8px; margin-top: 4px; }
+    .picker button { background: #ffffff; color: #111111; border: 0; min-width: 28px; height: 28px; }
+    .field { position: relative; }
+    input:-webkit-autofill, input:-webkit-autofill:focus {
+      -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
+      -webkit-text-fill-color: #111111;
+      caret-color: #111111;
+    }
+      -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
+      -webkit-text-fill-color: #111111;
+      caret-color: #111111;
+    }
+    .wci-c { background: #e7f6ee; color: #1e7a32; }
+    .wci-w { background: #fde8e6; color: #9c1b1b; }
+    .wci-i { background: #e7f0fb; color: #1d4f91; }
+    input::placeholder { color: #b0b0b0; -webkit-text-fill-color: #b0b0b0; }
+    .not-panel { position: sticky; top: 18px; }
+    .not-head { width: 100%; display: flex; justify-content: space-between; align-items: center; }
+    .count { min-width: 22px; height: 22px; border-radius: 999px; background: #e07a62; color: white; font-size: 12px; display: grid; place-items: center; }
+    .letter { display: inline-grid; place-items: center; min-width: 22px; height: 22px; border-radius: 999px; font-weight: 700; margin-left: 6px; }
+    .letter-c { background: #1e7a32; color: #ffffff; }
+    .letter-w { background: #9c1b1b; color: #ffffff; }
+    .letter-i { background: #1d4f91; color: #ffffff; }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+    .line-tools { display: inline-flex; gap: 8px; margin-left: 10px; }
+    .line-tools .mini { background: transparent; }
+    .short-line { background: #fde8e6; color: #9c1b1b; border-radius: 8px; }
+    .short-line .mini { border: 1px solid #111111; color: #111111; }
+    .gold-line { background: #f4e4b3; color: #5c4310; border-radius: 8px; }
+    .gold-line .mini, .short-line .mini { border: 1px solid #111111 !important; color: #111111 !important; background: transparent !important; }
+    .card .mini { border: 1px solid #ffffff; color: #ffffff; background: transparent; }
+    .layout { display: grid; grid-template-columns: 260px minmax(820px, 1fr) 460px; gap: 18px; align-items: start; }
+    @media (max-width: 980px) { .layout { grid-template-columns: 1fr; } }
+    .panel, .card, .setup {
+      background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow);
+    }
+    .panel { padding: 16px; }
+    .panel + .panel { margin-top: 14px; }
+    .kicker { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
+    .cal-head, .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .cal-head button, .icon-btn {
+      width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--line); background: #23282c; color: var(--ink);
+    }
+    .month { font-family: Fraunces, Georgia, serif; font-size: 20px; }
+    .dow, .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+    .dow { margin: 10px 0 6px; color: var(--muted); font-size: 11px; text-align: center; }
+    .day {
+      border: 0; background: transparent; border-radius: 10px; min-height: 36px; position: relative;
+    }
+    .day.on { background: var(--teal); color: white; }
+    .day.has::after {
+      content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--copper);
+      position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
+    }
+    .day.on.has::after { background: #f0d3c6; }
+    .day:disabled { color: #c8c0b4; }
+    .upload {
+      width: 100%; margin-top: 8px; padding: 14px 12px; border-radius: 14px; border: 1px dashed var(--teal);
+      background: #162221; text-align: left; color: var(--ink);
+    }
+    .upload strong { display: block; }
+    .upload span { color: var(--muted); font-size: 13px; }
+    .stat { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+    .stat b { font-variant-numeric: tabular-nums; }
+    .day-head { display: flex; justify-content: space-between; gap: 12px; align-items: end; margin-bottom: 14px; }
+    .day-head h2 { font-family: Fraunces, Georgia, serif; font-size: 34px; margin: 0; font-weight: 560; }
+    .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip { background: #23282c; border: 1px solid var(--line); border-radius: 999px; padding: 6px 10px; font-size: 13px; }
+    .chip.short { background: var(--copper-soft); border-color: #e4c8bb; color: var(--copper); }
+    .chip.carry { background: var(--gold-soft); border-color: #e6d7b4; color: var(--gold); }
+    .line {
+      padding: 16px 16px 14px; margin-bottom: 12px;
+    }
+    .line.head { display: flex; justify-content: space-between; gap: 12px; align-items: start; }
+    .ro { font-family: Fraunces, Georgia, serif; font-size: 26px; margin: 0; }
+    .badge { font-size: 12px; border-radius: 999px; padding: 3px 8px; background: var(--teal-soft); color: var(--teal); }
+    .badge.split { background: var(--gold-soft); color: var(--gold); }
+    .ops { color: var(--muted); font-size: 13px; margin: 6px 0 12px; }
+    .math { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .math label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: block; }
+    .math b, .math input { font-variant-numeric: tabular-nums; font-size: 18px; }
+    .math input {
+      width: 88px; border: 1px solid var(--line); border-radius: 8px; padding: 4px 6px; background: #23282c; color: var(--ink);
+    }
+    .line-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .mini { border-radius: 999px; border: 1px solid var(--line); background: #23282c; padding: 6px 10px; font-size: 13px; color: var(--ink); }
+    .mini.on { background: var(--gold-soft); border-color: #e6d7b4; }
+    .empty { padding: 28px; color: var(--muted); }
+    .banner {
+      background: var(--copper-soft); border: 1px solid #e4c8bb; color: var(--copper);
+      border-radius: 14px; padding: 12px 14px; margin-bottom: 14px;
+    }
+    .note { color: var(--muted); font-size: 13px; line-height: 1.45; }
+    .setup { max-width: 640px; margin: 20px auto; padding: 28px; }
+    .setup h2 { font-family: Fraunces, Georgia, serif; margin: 0 0 6px; }
+    label.field { display: block; margin: 12px 0; }
+    label.field span { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+    input[type="text"], input[type="email"], input[type="date"], input[type="number"], select {
+      width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: #121416; color: var(--ink);
+    }
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .advisor { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+    .hidden { display: none !important; }
+    .entry { padding: 14px; margin-bottom: 12px; }
+    .entry-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; align-items: end; }
+    .entry-grid label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 4px; }
+    .entry-grid input, .entry-grid select { width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 10px; background: #121416; color: var(--ink); }
+    .gap-short { color: #ff8d7a; }
+    .gap-over { color: #3ddc97; }
+    .split-ro { color: #6b3fa0; font-style: italic; }
+    .not-row { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+    @media (max-width: 860px) { .entry-grid { grid-template-columns: 1fr 1fr; } }
+    footer { margin-top: 28px; color: var(--muted); font-size: 13px; }
+    dialog { border: 0; border-radius: 18px; padding: 0; max-width: 520px; width: calc(100% - 28px); }
+    dialog::backdrop { background: rgba(28, 25, 22, 0.35); }
+    .sheet { padding: 22px; }
+    @media (max-width: 860px) {
+      .layout, .math, .two { grid-template-columns: 1fr; }
+      .day-head h2 { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">
+        <div class="logo-frame"><img class="logo" src="logo.jpg" alt="Tech Hour Tracking"></div>
+      </div>
+      <div class="account">
+        <button class="ghost" id="openSettings" type="button">Setup</button>
+        <div class="sub" id="who">Daily tracker · this browser only</div>
+      </div>
+    </header>
+
+    <section class="setup" id="setup">
+      <p class="kicker">Tech Hour Tracking LLC</p>
+      <h2>Set up this browser</h2>
+      <p class="note">The RTHS stays on this computer. Nothing is sent to Tech Hour Tracking LLC, and nothing is written to Google Drive.</p>
+      <form id="setupForm" onsubmit="return false">
+        <label class="field"><span>Name</span><input name="name" required></label>
+        <div class="two">
+          <label class="field"><span>Tech number</span><input name="techNumber" required></label>
+          <label class="field"><span>Your email</span><input name="email" type="email" required></label>
+        </div>
+        <label class="field"><span>Manager name</span><input name="managerName"></label>
+        <label class="field"><span>Manager email</span><input name="managerEmail" type="email" required></label>
+        <label class="field"><span>Pay cadence</span>
+          <select name="cadence" id="cadence">
+            <option value="weekly">Weekly</option>
+            <option value="twice">2 weeks / twice a month</option>
+            <option value="monthly">Monthly</option>
+          </select>
+        </label>
+        <div class="two">
+          <label class="field"><span>This period start</span><div class="date-wrap"><input name="periodStart" placeholder="MM/DD/YYYY" required><button type="button" class="cal-btn" data-cal aria-label="Pick start date">▾</button></div></label>
+          <label class="field"><span>This period end</span><div class="date-wrap"><input name="periodEnd" placeholder="MM/DD/YYYY" required><button type="button" class="cal-btn" data-cal aria-label="Pick end date">▾</button></div></label>
+        </div>
+        <div class="two hidden" id="secondPeriod">
+          <label class="field"><span>Next period start</span><div class="date-wrap"><input name="period2Start" placeholder="MM/DD/YYYY"><button type="button" class="cal-btn" data-cal aria-label="Pick next start">▾</button></div></label>
+          <label class="field"><span>Next period end</span><div class="date-wrap"><input name="period2End" placeholder="MM/DD/YYYY"><button type="button" class="cal-btn" data-cal aria-label="Pick next end">▾</button></div></label>
+        </div>
+        <label class="field"><span>Advisors, comma separated</span><input name="advisors" placeholder="Optional, can be changed later"></label>
+        <button class="solid" id="openTracker" type="button">Open the tracker</button>
+        <p class="note" id="setupNote"></p>
+      </form>
+    </section>
+
+    <div class="layout hidden" id="app">
+      <aside>
+        <div class="panel">
+          <p class="kicker">Calendar</p>
+          <div class="cal-head">
+            <button type="button" id="prevMonth" aria-label="Previous month">‹</button>
+            <div class="month" id="monthLabel"></div>
+            <button type="button" id="nextMonth" aria-label="Next month">›</button>
+          </div>
+          <div class="dow"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+          <div class="grid" id="calendar"></div>
+        </div>
+        <div class="panel">
+          <p class="kicker">RTHS</p>
+          <button class="upload" id="uploadBtn" type="button">
+            <strong>Upload RTHS report</strong>
+            <span>CDK Technician Hours Summary PDF. Read here, not uploaded.</span>
+          </button>
+          <button class="ghost" id="loadSample" type="button" style="width:100%;margin-top:8px">Load sample sheet</button>
+          <input id="file" type="file" accept="application/pdf,.pdf" class="hidden">
+          <p class="note" id="fileNote"></p>
+        </div>
+        <div class="panel">
+          <p class="kicker">Current pay period</p>
+          <div class="stat"><span>Paid, including carry-in</span><b id="checkPaid">0.00</b></div>
+          <div class="stat"><span>Flagged, not carry-in</span><b id="checkFlagged">0.00</b></div>
+          <div class="stat"><span>Clock</span><b id="checkClock">0.00</b></div>
+          <div class="stat"><span>Short lines</span><b id="shortCount">0</b></div>
+          <div class="stat"><span>Hours short</span><b id="shortHours">0.00</b></div>
+          <div class="stat"><span>Carry-in on the check</span><b id="carryHours">0.00</b></div>
+          <button class="solid" id="sendReport" type="button" style="width:100%;margin-top:12px">Send short-pay report</button>
+          <button class="ghost" id="newPeriod" type="button" style="width:100%;margin-top:8px">New pay period</button>
+          <button class="ghost" id="clearData" type="button" style="width:100%;margin-top:8px">Clear test data</button>
+          <button class="ghost" id="saveBackup" type="button" style="width:100%;margin-top:8px">Download backup</button>
+          <button class="ghost" id="restoreBackup" type="button" style="width:100%;margin-top:8px">Restore backup</button>
+          <input id="backupFile" type="file" accept="application/json,.json" class="hidden">
+          <button class="ghost" id="googleSave" type="button" style="width:100%;margin-top:8px">Sign in and save to Google</button>
+          <button class="ghost" id="googleRestore" type="button" style="width:100%;margin-top:8px">Sign in and restore</button>
+          <p class="note" id="backupNote">Backup stays in this tech's Google account. Tech Hour Tracking does not keep a copy.</p>
+          <p class="note" id="lastDayNote"></p>
+        </div>
+        <div class="panel">
+          <p class="kicker">Pay period stats</p>
+          <div class="stat"><span>Days worked</span><b id="statDays">0</b></div>
+          <div class="stat"><span>ROs per day</span><b id="statRos">0.00</b></div>
+          <div class="stat"><span>Flagged hours per day</span><b id="statHours">0.00</b></div>
+          <div class="stat"><span>Lines per RO</span><b id="statLines">0.00</b></div>
+          <div class="stat"><span>C</span><b id="statC">0%</b></div>
+          <div class="stat"><span>W</span><b id="statW">0%</b></div>
+          <div class="stat"><span>I</span><b id="statI">0%</b></div>
+          <p class="note">Days with no lines are not counted. Carry-in is off these stats.</p>
+        </div>
+      </aside>
+      <main>
+        <div class="banner hidden" id="lastBanner">Last day of the pay period. Send the short-pay report to the manager. Carry-in stays off that report.</div>
+        <div class="day-head">
+          <div>
+            <p class="kicker" id="weekday"></p>
+            <h2 id="dayTitle"></h2>
+          </div>
+          <div class="chips" id="dayChips"></div>
+        </div>
+        <form class="card entry" id="dayEntry" onsubmit="return false">
+          <p class="kicker">Current Job</p>
+          <div class="entry-grid">
+            <label><span>RO</span><input name="ro" placeholder="348366 or 348077S"></label>
+            <label><span>Job</span><input name="job" placeholder="20k service"></label>
+            <label><span>Line</span><input name="line" placeholder="A" style="text-transform:uppercase"></label>
+            <label><span>W/C/I</span><select name="wci" id="wciPick"><option value="C">C</option><option value="W">W</option><option value="I">I</option></select></label>
+            <label><span>Flagged hours</span><input name="flagged" type="number" step="0.01" value="0.00"></label>
+            <label><span>Advisor</span><select name="advisor" id="advisorPick"><option value=""></option></select></label>
+            <label><span>Note</span><input name="note" placeholder="WIP, advisor miss"></label>
+          </div>
+          <button class="solid" id="addLine" type="button" style="margin-top:12px">Add this line</button>
+          <div class="prior" id="priorNote"></div>
+        </form>
+        <div id="lines"></div>
+        <p class="kicker" style="margin-top:22px">Carry-in</p>
+        <p class="note">Gold block for this pay period. It stays under the saved lines when you change days. Counts on the check. Left off the short-pay report.</p>
+        <div id="carry"></div>
+      </main>
+      <aside class="not-panel">
+        <div class="panel">
+          <button class="ghost not-head" id="notToggle" type="button">
+            <span>Not Currently Tracked</span>
+            <span class="count hidden" id="notBadge">0</span>
+          </button>
+          <div id="notBody" class="hidden">
+            <p class="note">On the report, not flagged yet. Place it on the booked day or send it to carry-in.</p>
+            <div id="notOn"></div>
+          </div>
+        </div>
+      </aside>
+    </div>
+    <footer>
+      Tech Hour Tracking LLC · consultant · 8596 Del Rio Rd, Peyton, CO 80831 · (719) 401-1010
+      <br>The report stays in this browser. A dealership still has to allow a tech to use their RTHS here.
+    </footer>
+  </div>
+
+  <dialog id="reportAsk">
+    <form class="sheet" id="reportForm">
+      <p class="kicker">Short-pay report</p>
+      <h2 style="font-family:Fraunces,Georgia,serif;margin:0 0 10px">Send or rebuild</h2>
+      <p class="note" id="reportAskNote">Boss email, or type pdf to only rebuild the tab. Blank uses the manager on file.</p>
+      <label class="field"><span>Email or pdf</span><input name="target" id="reportTarget" placeholder="pdf"></label>
+      <div class="row" style="margin-top:12px">
+        <button class="ghost" type="button" id="cancelReport">Cancel</button>
+        <button class="solid" type="submit">OK</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="settings">
+    <form class="sheet" id="settingsForm">
+      <p class="kicker">Change later</p>
+      <h2 style="font-family:Fraunces,Georgia,serif;margin:0 0 10px">Advisors and manager</h2>
+      <label class="field"><span>Name</span><input name="name" required></label>
+      <div class="two">
+        <label class="field"><span>Tech number</span><input name="techNumber" required></label>
+        <label class="field"><span>Email</span><input name="email" type="email" required></label>
+      </div>
+      <label class="field"><span>Manager name</span><input name="managerName"></label>
+      <label class="field"><span>Manager email</span><input name="managerEmail" type="email" required></label>
+      <label class="field"><span>Pay cadence</span>
+        <select name="cadence">
+          <option value="weekly">Weekly</option>
+          <option value="twice">Twice a month</option>
+          <option value="monthly">Monthly</option>
+        </select>
+      </label>
+      <div class="two">
+        <label class="field"><span>Pay period start</span><input name="periodStart" type="date" required></label>
+        <label class="field"><span>Pay period end</span><input name="periodEnd" type="date" required></label>
+      </div>
+      <label class="field"><span>Advisors, comma separated</span><input name="advisors"></label>
+      <div class="row" style="margin-top:12px">
+        <button class="ghost" type="button" id="closeSettings">Close</button>
+        <button class="solid" type="submit">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="https://accounts.google.com/gsi/client" async></script>
+  <script src="google-client.js"></script>
+  <script src="parse.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
